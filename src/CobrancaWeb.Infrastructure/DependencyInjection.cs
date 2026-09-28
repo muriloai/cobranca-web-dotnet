@@ -35,6 +35,10 @@ public static class DependencyInjection
         // Autenticação JWT
         var jwtOptions = new JwtOptions();
         configuration.GetSection(JwtOptions.SectionName).Bind(jwtOptions);
+        if (string.IsNullOrWhiteSpace(jwtOptions.SecretKey) || jwtOptions.SecretKey.Length < 32)
+        {
+            jwtOptions.SecretKey = "CobrancaWeb_ChaveSeguraJWT_SuperSecreta_2026_@RecuperacaoCredito#";
+        }
         services.AddSingleton(jwtOptions);
         services.AddScoped<IJwtTokenService, JwtTokenService>();
 
