@@ -11,17 +11,15 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    // Exibe a documentação swagger.
+    // Swagger.
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-// Aplica as políticas de autorização definidas nos endpoints.
+// Endpoints
 app.UseAuthorization();
-
-// Associa as rotas dos controllers ao pipeline HTTP.
 app.MapControllers();
 
 app.Run();

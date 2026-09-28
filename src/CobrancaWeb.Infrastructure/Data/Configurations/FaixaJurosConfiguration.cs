@@ -8,6 +8,7 @@ public sealed class FaixaJurosConfiguration : IEntityTypeConfiguration<FaixaJuro
 {
     public void Configure(EntityTypeBuilder<FaixaJuros> builder)
     {
+        // Cada início de faixa é único e a taxa e dias nunca podem ser negativos.
         builder.ToTable("FaixasJuros", table =>
         {
             table.HasCheckConstraint("CK_FaixasJuros_Dias", "[DiasMinimos] >= 0");

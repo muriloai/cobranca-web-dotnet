@@ -8,10 +8,14 @@ public sealed class DevedorConfiguration : IEntityTypeConfiguration<Devedor>
 {
     public void Configure(EntityTypeBuilder<Devedor> builder)
     {
+        // O documento fica sem pontuação, com 11 ou 14 dígitos, e identifica um único devedor.
         builder.ToTable("Devedores", table =>
             table.HasCheckConstraint("CK_Devedores_Documento", "LEN([Documento]) IN (11, 14) AND [Documento] NOT LIKE '%[^0-9]%'"));
         builder.HasKey(item => item.Id).HasName("PK_Devedores");
+
+        // O Guid nasce no domínio então o banco não gera outro identificador.
         builder.Property(item => item.Id).ValueGeneratedNever();
+
         builder.Property(item => item.Nome).HasMaxLength(180).IsRequired();
         builder.Property(item => item.Documento).HasMaxLength(14).IsUnicode(false).IsRequired();
         builder.Property(item => item.Email).HasMaxLength(254);

@@ -7,7 +7,8 @@ public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
 {
     public AppDbContext CreateDbContext(string[] args)
     {
-        var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+        var connectionString = Environment.GetEnvironmentVariable(
+            "ConnectionStrings__DefaultConnection")
             ?? "Server=(localdb)\\MSSQLLocalDB;Database=CobrancaWeb;Trusted_Connection=True;TrustServerCertificate=True";
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseSqlServer(connectionString)
