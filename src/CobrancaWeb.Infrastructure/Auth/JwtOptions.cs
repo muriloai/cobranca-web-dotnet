@@ -1,0 +1,11 @@
+namespace CobrancaWeb.Infrastructure.Auth;
+
+public sealed class JwtOptions
+{
+    public const string SectionName = "Jwt";
+
+    public string SecretKey { get; set; } = string.Empty;
+    public string Issuer { get; set; } = "CobrancaWeb.API";
+    public string Audience { get; set; } = "CobrancaWeb.Client";
+    public int ExpiracaoEmMinutos { get; set; } = 480; // 8 horas padrão para turno operacional
+}
