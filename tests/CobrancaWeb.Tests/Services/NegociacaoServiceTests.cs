@@ -118,14 +118,14 @@ public class NegociacaoServiceTests
     [Fact]
     public async Task EfetivarAsync_DeveRatearParcelasCorretamenteEAjustarDizimaDeCentavos()
     {
-        // Arrange: R$ 1000 dividido em 3 parcelas (dízima 333,33...)
-        // Primeira parcela deve receber o centavo de ajuste (333.34) e a soma de todas deve ser rigorosamente 1000.00
+        // Arrange: R$ 100 dividido em 3 parcelas (dízima 33,33...)
+        // A primeira parcela recebe o centavo residual para a soma reconciliar com o acordo.
         var vencimento = DateTime.UtcNow.AddDays(-100);
         var contrato = new Contrato
         {
             Id = Guid.NewGuid(),
             Numero = "CT-004",
-            ValorOriginal = 1000m,
+            ValorOriginal = 100m,
             Vencimento = vencimento,
             TaxaJurosMensal = 0.0m // Sem juros para validar divisão exata
         };
@@ -133,6 +133,13 @@ public class NegociacaoServiceTests
         _contratoRepositoryMock
             .Setup(r => r.ObterAsync(contrato.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(contrato);
+
+        _negociacaoRepositoryMock
+            .Setup(r => r.EfetivarAsync(It.IsAny<Negociacao>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()))
+            .Callback<Negociacao, DateTime, CancellationToken>((negociacao, _, _) =>
+                _negociacaoRepositoryMock
+                    .Setup(r => r.ObterAsync(negociacao.Id, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(negociacao));
 
         var dto = new NegociacaoInputDto(
             ContratoId: contrato.Id,
@@ -145,23 +152,24 @@ public class NegociacaoServiceTests
 
         // Assert
         resultado.Should().NotBeNull();
-        resultado.ValorAcordado.Should().Be(1000.00m);
+        resultado.ValorAcordado.Should().Be(100.00m);
         resultado.Parcelas.Should().HaveCount(3);
 
         // A soma das parcelas tem que bater exatamente com o valor total acordado
         var somaParcelas = resultado.Parcelas.Sum(p => p.Valor);
-        somaParcelas.Should().Be(1000.00m);
+        somaParcelas.Should().Be(100.00m);
 
         // A primeira parcela absorve o ajuste de centavos
-        resultado.Parcelas[0].Valor.Should().Be(333.34m);
-        resultado.Parcelas[1].Valor.Should().Be(333.33m);
-        resultado.Parcelas[2].Valor.Should().Be(333.33m);
+        resultado.Parcelas[0].Valor.Should().Be(33.34m);
+        resultado.Parcelas[1].Valor.Should().Be(33.33m);
+        resultado.Parcelas[2].Valor.Should().Be(33.33m);
 
         // O contrato deve ter transitado para o status 'Negociado'
         contrato.Status.Should().Be(StatusContrato.Negociado);
 
-        _negociacaoRepositoryMock.Verify(r => r.AdicionarAsync(It.IsAny<Negociacao>(), It.IsAny<CancellationToken>()), Times.Once);
-        _negociacaoRepositoryMock.Verify(r => r.SalvarAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _negociacaoRepositoryMock.Verify(
+            r => r.EfetivarAsync(It.IsAny<Negociacao>(), It.IsAny<DateTime>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
@@ -231,6 +239,8 @@ public class NegociacaoServiceTests
         negociacao.Status.Should().Be(StatusNegociacao.Concluida);
         contrato.Status.Should().Be(StatusContrato.Liquidado);
 
-        _negociacaoRepositoryMock.Verify(r => r.SalvarAsync(It.IsAny<CancellationToken>()), Times.Once);
+        _negociacaoRepositoryMock.Verify(
+            r => r.RegistrarPagamentoAsync(negociacao.Id, parcela2.Id, It.IsAny<DateTime>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

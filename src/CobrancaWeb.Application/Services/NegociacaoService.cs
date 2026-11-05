@@ -143,10 +143,12 @@ public sealed class NegociacaoService(
 
         contrato.MarcarComoNegociado();
 
-        await negociacaoRepository.AdicionarAsync(negociacao, cancellationToken);
-        await negociacaoRepository.SalvarAsync(cancellationToken);
+        await negociacaoRepository.EfetivarAsync(negociacao, primeiroVencimento, cancellationToken);
 
-        return MapearParaDto(negociacao);
+        var efetivada = await negociacaoRepository.ObterAsync(negociacao.Id, cancellationToken)
+            ?? throw new InvalidOperationException("A procedure efetivou a negociação, mas ela não foi localizada para leitura.");
+
+        return MapearParaDto(efetivada);
     }
 
     public async Task<NegociacaoDto> RegistrarPagamentoParcelaAsync(
@@ -159,8 +161,7 @@ public sealed class NegociacaoService(
             ?? throw new KeyNotFoundException($"Negociação com ID '{negociacaoId}' não foi encontrada.");
 
         negociacao.RegistrarPagamento(parcelaId, pagoEm);
-
-        await negociacaoRepository.SalvarAsync(cancellationToken);
+        await negociacaoRepository.RegistrarPagamentoAsync(negociacaoId, parcelaId, pagoEm, cancellationToken);
 
         return MapearParaDto(negociacao);
     }

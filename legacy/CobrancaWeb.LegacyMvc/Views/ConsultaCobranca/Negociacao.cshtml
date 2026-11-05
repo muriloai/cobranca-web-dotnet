@@ -1,0 +1,30 @@
+@inherits System.Web.Mvc.WebViewPage<CobrancaWeb.LegacyMvc.Controllers.NegociacaoLegadoModel>
+
+@{
+    ViewBag.Title = "Negociação " + Model.Id;
+}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+</head>
+<body>
+    <div class="container">
+        <h2>Consulta de negociação anterior</h2>
+        <dl class="dl-horizontal">
+            <dt>Identificador</dt><dd>@Model.Id</dd>
+            <dt>Contrato</dt><dd>@Model.NumeroContrato (@Model.ContratoId)</dd>
+            <dt>Devedor</dt><dd>@Model.DevedorNome</dd>
+            <dt>Data do acordo</dt><dd>@Model.DataAcordo.ToString("dd/MM/yyyy HH:mm")</dd>
+            <dt>Total acordado</dt><dd><strong>@Model.ValorAcordado.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))</strong></dd>
+            <dt>Desconto</dt><dd>@Model.DescontoPercentual.ToString("N2")%</dd>
+            <dt>Parcelas</dt><dd>@Model.QuantidadeParcelas</dd>
+            <dt>Status</dt><dd>@Model.Status</dd>
+        </dl>
+        <p><a class="btn btn-default" href="@Url.Action("Index", "ConsultaCobranca")">Voltar à cobrança</a></p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyName>CobrancaWeb.LegacyMvc</AssemblyName>
+    <RootNamespace>CobrancaWeb.LegacyMvc</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web" />
+    <PackageReference Include="Microsoft.AspNet.Mvc" Version="5.2.9" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Global.asax;Web.config;Views\**\*.cshtml;Views\Web.config;Scripts\**\*"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <Target Name="CopyMvcAssembliesToIisBin" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)bin" />
+    <ItemGroup>
+      <MvcPublishAssemblies Include="$(PublishDir)*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MvcPublishAssemblies)" DestinationFolder="$(PublishDir)bin" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

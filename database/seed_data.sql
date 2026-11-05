@@ -45,6 +45,13 @@ BEGIN
     VALUES ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', @EmpresaId, N'CT-002', 4500.00, DATEADD(DAY, -35, CONVERT(date, SYSUTCDATETIME())), 0.01, 1);
 END;
 
+IF NOT EXISTS (SELECT 1 FROM dbo.Contratos WHERE Numero = N'CT-TEST-100')
+BEGIN
+    INSERT INTO dbo.Contratos (Id, DevedorId, Numero, ValorOriginal, Vencimento, TaxaJurosMensal, Status)
+    VALUES ('dddddddd-dddd-dddd-dddd-dddddddddddd', @MariaId, N'CT-TEST-100', 100.00,
+            CONVERT(date, SYSUTCDATETIME()), 0.000000, 1);
+END;
+
 DECLARE @UsuarioId uniqueidentifier;
 SELECT @UsuarioId = Id FROM dbo.Usuarios WHERE Email = N'operador@example.test';
 IF @UsuarioId IS NULL

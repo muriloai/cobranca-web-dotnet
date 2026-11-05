@@ -17,7 +17,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? "Server=(localdb)\\mssqllocaldb;Database=CobrancaWeb;Trusted_Connection=True;MultipleActiveResultSets=true";
+            ?? throw new InvalidOperationException("ConnectionStrings:DefaultConnection não foi configurada para a aplicação.");
 
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(connectionString));

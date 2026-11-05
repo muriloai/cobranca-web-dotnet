@@ -19,9 +19,28 @@ public sealed class NegociacoesController(INegociacaoService negociacaoService) 
     );
 
     [HttpGet("{id:guid}")]
-    [ProducesResponseType(typeof(NegociacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(NegociacaoResumoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> ObterPorId(Guid id, CancellationToken cancellationToken)
+    {
+        var negociacao = await negociacaoService.ObterPorIdAsync(id, cancellationToken);
+        if (negociacao is null)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Negociação não encontrada",
+                Detail = $"Nenhuma negociação com o identificador '{id}' foi localizada."
+            });
+        }
+
+        return Ok(Resumir(negociacao));
+    }
+
+    [HttpGet("~/api/v2/negociacoes/{id:guid}")]
+    [ProducesResponseType(typeof(NegociacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ObterPorIdV2(Guid id, CancellationToken cancellationToken)
     {
         var negociacao = await negociacaoService.ObterPorIdAsync(id, cancellationToken);
         if (negociacao is null)
@@ -55,17 +74,17 @@ public sealed class NegociacoesController(INegociacaoService negociacaoService) 
     }
 
     [HttpPost("efetivar")]
-    [ProducesResponseType(typeof(NegociacaoDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(NegociacaoResumoDto), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Efetivar([FromBody] NegociacaoInputDto dto, CancellationToken cancellationToken)
     {
         var negociacao = await negociacaoService.EfetivarAsync(dto, cancellationToken);
-        return CreatedAtAction(nameof(ObterPorId), new { id = negociacao.Id }, negociacao);
+        return CreatedAtAction(nameof(ObterPorId), new { id = negociacao.Id }, Resumir(negociacao));
     }
 
     [HttpPost("{id:guid}/parcelas/{parcelaId:guid}/pagamento")]
-    [ProducesResponseType(typeof(NegociacaoDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(NegociacaoResumoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RegistrarPagamento(
@@ -76,6 +95,17 @@ public sealed class NegociacoesController(INegociacaoService negociacaoService) 
     {
         var pagoEm = dto?.DataPagamento ?? DateTime.UtcNow;
         var atualizada = await negociacaoService.RegistrarPagamentoParcelaAsync(id, parcelaId, pagoEm, cancellationToken);
-        return Ok(atualizada);
+        return Ok(Resumir(atualizada));
     }
+
+    private static NegociacaoResumoDto Resumir(NegociacaoDto negociacao) => new(
+        negociacao.Id,
+        negociacao.ContratoId,
+        negociacao.NumeroContrato,
+        negociacao.DevedorNome,
+        negociacao.DataAcordo,
+        negociacao.ValorAcordado,
+        negociacao.DescontoPercentual,
+        negociacao.QuantidadeParcelas,
+        negociacao.Status);
 }

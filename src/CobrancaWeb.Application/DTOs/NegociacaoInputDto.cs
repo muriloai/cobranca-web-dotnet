@@ -23,6 +23,19 @@ public sealed record NegociacaoDto(
     IReadOnlyList<ParcelaDto> Parcelas
 );
 
+// Contrato congelado de leitura v1: mantém o total usado pelo consumidor legado.
+public sealed record NegociacaoResumoDto(
+    Guid Id,
+    Guid ContratoId,
+    string? NumeroContrato,
+    string? DevedorNome,
+    DateTime DataAcordo,
+    decimal ValorAcordado,
+    decimal DescontoPercentual,
+    int QuantidadeParcelas,
+    StatusNegociacao Status
+);
+
 public sealed record ParcelaDto(
     Guid Id,
     int Numero,

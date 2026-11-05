@@ -1,4 +1,4 @@
-@model IEnumerable<CobrancaWeb.LegacyMvc.Controllers.ContratoLegadoModel>
+@inherits System.Web.Mvc.WebViewPage<IEnumerable<CobrancaWeb.LegacyMvc.Controllers.ContratoLegadoModel>>
 
 @{
     ViewBag.Title = "CobrançaWeb — Módulo Legado (ASP.NET MVC 5)";
@@ -36,6 +36,19 @@
                     </div>
                     <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Localizar</button>
                     <a href="/ConsultaCobranca/Index" class="btn btn-default">Limpar</a>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel panel-info">
+            <div class="panel-heading"><strong>Consultar negociação anterior</strong></div>
+            <div class="panel-body">
+                <form method="get" action="@Url.Action("Negociacao", "ConsultaCobranca")" class="form-inline">
+                    <div class="form-group">
+                        <label for="negociacaoId">ID da negociação:</label>
+                        <input type="text" id="negociacaoId" name="id" class="form-control" style="width: 360px;" />
+                    </div>
+                    <button type="submit" class="btn btn-info">Consultar total</button>
                 </form>
             </div>
         </div>
